@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>이커머스 손익 계산기 | 팔아본 팀장의 실무노트</title>
+  <style>
+    :root{--navy:#173247;--teal:#08777c;--coral:#d94a3a;--ivory:#faf7ef;--line:#d9e1df;--muted:#5c6b73;--white:#fff;--soft:#edf6f4;--bad:#a7352a}
+    *{box-sizing:border-box}body{margin:0;background:var(--ivory);color:#1d2a31;font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.65}
+    .tool{max-width:980px;margin:28px auto;padding:0 18px 48px}.head{padding:26px 0 18px}.eyebrow{color:var(--teal);font-size:14px;font-weight:700}.head h1{margin:4px 0 8px;color:var(--navy);font-size:clamp(28px,5vw,42px);line-height:1.3}.head p{margin:0;color:var(--muted)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px}.tabs button{min-height:44px;padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:var(--white);color:var(--navy);font:inherit;font-weight:700;cursor:pointer}.tabs button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:var(--white)}
+    .panel{display:none}.panel.active{display:block}.intro{margin:0 0 18px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(300px,.95fr);gap:18px}.box{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:22px}.box h2{margin:0 0 6px;color:var(--navy);font-size:23px}.box h3{margin:0 0 12px;color:var(--navy);font-size:18px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field label{display:block;margin-bottom:5px;color:var(--navy);font-size:14px;font-weight:700}.input-wrap{display:flex;align-items:center;border:1px solid #bac8c8;border-radius:10px;background:var(--white);overflow:hidden}.input-wrap:focus-within{outline:3px solid #8bc8c8}.input-wrap input{width:100%;min-width:0;border:0;outline:0;padding:11px 10px;font:inherit;font-size:16px;text-align:right}.unit{padding-right:10px;color:var(--muted);white-space:nowrap}
+    .actions{display:flex;justify-content:flex-end;margin-top:16px}.reset{min-height:42px;padding:8px 14px;border:1px solid var(--line);border-radius:9px;background:var(--white);color:var(--navy);font:inherit;font-weight:700;cursor:pointer}.results{display:grid;gap:10px}.result{padding:14px 15px;border-left:4px solid var(--teal);background:var(--soft);border-radius:8px}.result span{display:block;color:var(--muted);font-size:13px}.result strong{display:block;margin-top:2px;color:var(--navy);font-size:24px;line-height:1.35}.result.primary{border-left-color:var(--coral);background:#fff1ed}.formula{margin:15px 0 0;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}.formula code{color:var(--navy);font-family:inherit;font-weight:700}.error{min-height:26px;margin:10px 0 0;color:var(--bad);font-size:14px;font-weight:700}.note{margin-top:18px;padding:14px 16px;border-left:4px solid var(--coral);background:#fff9f3;color:var(--muted);font-size:14px}.hide{display:none!important}
+    @media(max-width:760px){.tool{margin-top:12px;padding-inline:12px}.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.box{padding:18px}.tabs{display:grid;grid-template-columns:1fr}.tabs button{border-radius:10px}.result strong{font-size:22px}}
+  </style>
+</head>
+<body><nav aria-label="도구 목록" style="padding:12px 20px"><a href="../../index.html">실무 도구 전체 보기</a></nav><div class="md-article">
+<main class="tool" id="ecom-tool">
+  <header class="head">
+    <div class="eyebrow">팔아본 팀장의 실무노트 · 독자 도구</div>
+    <h1>이커머스 손익 계산기</h1>
+    <p>상품 하나의 조건을 넣어 마진, 할인 행사 필요 주문 수, ROAS 기준을 비교해 보세요.</p>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="계산기 선택">
+    <button type="button" role="tab" id="tab-margin" aria-controls="margin" aria-selected="true">마진·판매가</button>
+    <button type="button" role="tab" id="tab-discount" aria-controls="discount" aria-selected="false">할인 행사</button>
+    <button type="button" role="tab" id="tab-roas" aria-controls="roas" aria-selected="false">ROAS 기준</button>
+  </nav>
+
+  <section class="panel active" id="margin" role="tabpanel" aria-labelledby="tab-margin">
+    <p class="intro">판매가에서 주문마다 발생하는 비용을 빼고, 광고 전·후에 얼마가 남는지 계산합니다.</p>
+    <div class="layout">
+      <div class="box">
+        <h2>마진과 목표 판매가</h2>
+        <div class="fields">
+          <div class="field"><label for="m-price">판매가</label><div class="input-wrap"><input id="m-price" type="number" min="0" step="100" value="30000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="m-cost">상품원가</label><div class="input-wrap"><input id="m-cost" type="number" min="0" step="100" value="15000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="m-fee">판매·결제 수수료</label><div class="input-wrap"><input id="m-fee" type="number" min="0" max="99" step="0.1" value="6"><span class="unit">%</span></div></div>
+          <div class="field"><label for="m-ship">배송비</label><div class="input-wrap"><input id="m-ship" type="number" min="0" step="100" value="3000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="m-pack">포장비</label><div class="input-wrap"><input id="m-pack" type="number" min="0" step="100" value="500"><span class="unit">원</span></div></div>
+          <div class="field"><label for="m-ad">주문당 광고비</label><div class="input-wrap"><input id="m-ad" type="number" min="0" step="100" value="4000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="m-target">광고 후 목표 기여율</label><div class="input-wrap"><input id="m-target" type="number" min="0" max="99" step="0.1" value="20"><span class="unit">%</span></div></div>
+        </div>
+        <div class="actions"><button class="reset" type="button" data-reset="margin">기본값으로 초기화</button></div>
+        <p class="error" id="m-error" role="alert"></p>
+      </div>
+      <aside class="box" aria-live="polite">
+        <h3>계산 결과</h3>
+        <div class="results">
+          <div class="result"><span>광고 전 주문 기여금</span><strong id="m-before">-</strong></div>
+          <div class="result"><span>광고 전 기여율</span><strong id="m-rate">-</strong></div>
+          <div class="result primary"><span>광고 후 주문 기여금</span><strong id="m-after">-</strong></div>
+          <div class="result"><span>목표 기여율을 위한 최소 판매가</span><strong id="m-target-price">-</strong></div>
+        </div>
+        <p class="formula"><code>광고 전 기여금 = 판매가 − 원가 − 수수료 − 배송비 − 포장비</code><br>최소 판매가는 광고비 차감 후 목표 기여율이 남도록 역산하여 10원 단위로 올림합니다. 금액은 원 단위 반올림, 비율은 소수 둘째 자리 표시입니다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel" id="discount" role="tabpanel" aria-labelledby="tab-discount" hidden>
+    <p class="intro">할인 전 주문 기여금 합계를 유지하려면 행사에서 몇 건을 팔아야 하는지 계산합니다.</p>
+    <div class="layout">
+      <div class="box">
+        <h2>할인 행사 손익</h2>
+        <div class="fields">
+          <div class="field"><label for="d-price">정상 판매가</label><div class="input-wrap"><input id="d-price" type="number" min="0" step="100" value="30000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="d-rate">할인율</label><div class="input-wrap"><input id="d-rate" type="number" min="0" max="99" step="0.1" value="10"><span class="unit">%</span></div></div>
+          <div class="field"><label for="d-cost">상품원가</label><div class="input-wrap"><input id="d-cost" type="number" min="0" step="100" value="15000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="d-fee">수수료</label><div class="input-wrap"><input id="d-fee" type="number" min="0" max="99" step="0.1" value="6"><span class="unit">%</span></div></div>
+          <div class="field"><label for="d-ship">배송비</label><div class="input-wrap"><input id="d-ship" type="number" min="0" step="100" value="3000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="d-pack">포장비</label><div class="input-wrap"><input id="d-pack" type="number" min="0" step="100" value="500"><span class="unit">원</span></div></div>
+          <div class="field"><label for="d-orders">행사 전 주문 수</label><div class="input-wrap"><input id="d-orders" type="number" min="1" step="1" value="100"><span class="unit">건</span></div></div>
+          <div class="field"><label for="d-extra">행사 추가 고정비</label><div class="input-wrap"><input id="d-extra" type="number" min="0" step="1000" value="0"><span class="unit">원</span></div></div>
+        </div>
+        <div class="actions"><button class="reset" type="button" data-reset="discount">기본값으로 초기화</button></div>
+        <p class="error" id="d-error" role="alert"></p>
+      </div>
+      <aside class="box" aria-live="polite">
+        <h3>계산 결과</h3>
+        <div class="results">
+          <div class="result"><span>할인 판매가</span><strong id="d-sale">-</strong></div>
+          <div class="result"><span>할인 전 → 할인 후 주문 기여금</span><strong id="d-contrib">-</strong></div>
+          <div class="result"><span>주문당 기여금 감소율</span><strong id="d-drop">-</strong></div>
+          <div class="result primary"><span>기존 합계를 유지할 필요 주문 수</span><strong id="d-required">-</strong></div>
+        </div>
+        <p class="formula"><code>필요 주문 수 = (기존 주문 기여금 합계 + 추가 고정비) ÷ 할인 후 주문 기여금</code><br>주문 수는 부족하지 않도록 올림합니다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="panel" id="roas" role="tabpanel" aria-labelledby="tab-roas" hidden>
+    <p class="intro">광고 전 기여율에서 광고 후 남기려는 비율을 빼 광고비 한도와 ROAS 기준을 구합니다.</p>
+    <div class="layout">
+      <div class="box">
+        <h2>ROAS와 광고비 한도</h2>
+        <div class="fields">
+          <div class="field"><label for="r-revenue">광고 귀속 매출</label><div class="input-wrap"><input id="r-revenue" type="number" min="0" step="1000" value="30000"><span class="unit">원</span></div></div>
+          <div class="field"><label for="r-rate">광고 전 기여율</label><div class="input-wrap"><input id="r-rate" type="number" min="0.1" max="99" step="0.01" value="32.33"><span class="unit">%</span></div></div>
+          <div class="field"><label for="r-target">광고 후 남길 기여율</label><div class="input-wrap"><input id="r-target" type="number" min="0" max="99" step="0.1" value="10"><span class="unit">%</span></div></div>
+        </div>
+        <div class="actions"><button class="reset" type="button" data-reset="roas">기본값으로 초기화</button></div>
+        <p class="error" id="r-error" role="alert"></p>
+      </div>
+      <aside class="box" aria-live="polite">
+        <h3>계산 결과</h3>
+        <div class="results">
+          <div class="result"><span>광고 전 기여금</span><strong id="r-before">-</strong></div>
+          <div class="result"><span>광고비 회수 기준 ROAS</span><strong id="r-break">-</strong></div>
+          <div class="result primary"><span>목표 기여율을 위한 ROAS</span><strong id="r-target-roas">-</strong></div>
+          <div class="result"><span>사용 가능한 광고비 한도</span><strong id="r-ad">-</strong></div>
+        </div>
+        <p class="formula"><code>ROAS(%) = 100 ÷ 광고비로 사용할 매출 비율(소수)</code><br>예: 25%를 사용할 수 있으면 100 ÷ 0.25 = 400%입니다. 전환 가치가 매출이라고 가정합니다. 기본 기여율 32.33%는 반올림 값이므로 본문의 정확한 9,700원 기준과 소액 차이가 납니다.</p>
+      </aside>
+    </div>
+  </section>
+
+  <p class="note">설명용 계산기입니다. 입력값의 부가세·반품·쿠폰 부담·고정비 포함 여부를 같은 기준으로 맞춰 주세요. 결과는 세무상 순이익이나 미래 광고 성과를 보장하지 않습니다.</p>
+<noscript><p>JavaScript를 켜면 직접 계산할 수 있습니다. 수동 예시: 30,000−15,000−1,800−3,000−500=9,700원. 할인 필요 주문 수: 970,000÷6,880을 올림해 141건. ROAS(%)=100÷광고에 사용할 매출 비율(소수).</p></noscript></main>
+<script>
+(()=>{
+  const defaults={margin:{'m-price':30000,'m-cost':15000,'m-fee':6,'m-ship':3000,'m-pack':500,'m-ad':4000,'m-target':20},discount:{'d-price':30000,'d-rate':10,'d-cost':15000,'d-fee':6,'d-ship':3000,'d-pack':500,'d-orders':100,'d-extra':0},roas:{'r-revenue':30000,'r-rate':32.33,'r-target':10}};
+  const won=n=>Number.isFinite(n)?Math.round(n).toLocaleString('ko-KR')+'원':'-';
+  const pct=n=>Number.isFinite(n)?n.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%':'-';
+  const val=id=>{const v=document.getElementById(id).value.trim();return v===''?NaN:Number(v);};
+  const set=(id,text)=>document.getElementById(id).textContent=text;
+  const valid=(values,errorId)=>{const bad=values.some(v=>!Number.isFinite(v)||v<0);set(errorId,bad?'빈칸 없이 0 이상의 숫자를 입력해 주세요.':'');return !bad};
+
+  function margin(){const p=val('m-price'),c=val('m-cost'),f=val('m-fee'),s=val('m-ship'),k=val('m-pack'),a=val('m-ad'),t=val('m-target');if(!valid([p,c,f,s,k,a,t],'m-error')){['m-before','m-rate','m-after','m-target-price'].forEach(x=>set(x,'-'));return}if(p<=0||f+t>=100){set('m-error',p<=0?'판매가는 0원보다 커야 합니다.':'수수료율과 목표 기여율의 합은 100%보다 작아야 합니다.');['m-before','m-rate','m-after','m-target-price'].forEach(x=>set(x,'-'));return}const before=p-c-p*f/100-s-k,after=before-a,target=(c+s+k+a)/(1-f/100-t/100);set('m-before',won(before));set('m-rate',pct(before/p*100));set('m-after',won(after));set('m-target-price',won(Math.ceil(target/10-Number.EPSILON*Math.max(1,Math.abs(target/10))*4)*10));}
+  function discount(){const p=val('d-price'),r=val('d-rate'),c=val('d-cost'),f=val('d-fee'),s=val('d-ship'),k=val('d-pack'),o=val('d-orders'),x=val('d-extra');if(!valid([p,r,c,f,s,k,o,x],'d-error')){['d-sale','d-contrib','d-drop','d-required'].forEach(i=>set(i,'-'));return}if(p<=0||o<1||!Number.isInteger(o)||r>=100||f>=100){set('d-error','판매가는 양수, 주문 수는 1 이상의 정수, 할인율·수수료율은 100% 미만이어야 합니다.');['d-sale','d-contrib','d-drop','d-required'].forEach(i=>set(i,'-'));return}const sale=p*(1-r/100),before=p-c-p*f/100-s-k,after=sale-c-sale*f/100-s-k;set('d-sale',won(sale));set('d-contrib',won(before)+' → '+won(after));set('d-drop',before>0?pct((before-after)/before*100):'-');if(before<=0){set('d-required','계산 불가');set('d-error','할인 전 주문 기여금부터 양수인지 확인해 주세요. 이 도구는 양의 기존 기여금 유지에 사용합니다.');return}if(after<=0){set('d-required','계산 불가');set('d-error','할인 후 주문 기여금이 0원 이하라서 판매량 증가만으로 기존 합계를 맞출 수 없습니다.');return}set('d-required',Math.ceil((before*o+x)/after).toLocaleString('ko-KR')+'건');}
+  function roas(){const rev=val('r-revenue'),rate=val('r-rate'),target=val('r-target');if(!valid([rev,rate,target],'r-error')){['r-before','r-break','r-target-roas','r-ad'].forEach(i=>set(i,'-'));return}if(rate>100||target>=100){set('r-error','광고 전 기여율은 100% 이하, 목표 기여율은 100% 미만이어야 합니다.');['r-before','r-break','r-target-roas','r-ad'].forEach(i=>set(i,'-'));return}if(rev<=0||rate<=0||rate<=target){set('r-error',rate<=target?'광고 후 남길 비율은 광고 전 기여율보다 작아야 합니다.':'매출과 기여율은 0보다 커야 합니다.');['r-before','r-break','r-target-roas','r-ad'].forEach(i=>set(i,'-'));return}const before=rev*rate/100,available=(rate-target)/100,ad=rev*available;set('r-before',won(before));set('r-break',pct(100/(rate/100)));set('r-target-roas',pct(100/available));set('r-ad',won(ad));}
+  const calculators={margin,discount,roas};
+  document.querySelectorAll('input').forEach(input=>input.addEventListener('input',()=>calculators[input.closest('.panel').id]()));
+  document.querySelectorAll('[data-reset]').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.reset;Object.entries(defaults[key]).forEach(([id,value])=>document.getElementById(id).value=value);calculators[key]()}));
+  document.querySelectorAll('[role="tab"]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[role="tab"]').forEach(tab=>tab.setAttribute('aria-selected','false'));document.querySelectorAll('[role="tabpanel"]').forEach(panel=>{panel.hidden=true;panel.classList.remove('active')});button.setAttribute('aria-selected','true');const panel=document.getElementById(button.getAttribute('aria-controls'));panel.hidden=false;panel.classList.add('active');history.replaceState(null,'','#'+panel.id)}));
+  const requested=location.hash.slice(1);if(['margin','discount','roas'].includes(requested))document.getElementById('tab-'+requested).click();
+  margin();discount();roas();
+})();
+</script>
+</div></body>
+</html>
+<style id="editorial-v2">.md-article{font-family:"Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif!important;font-size:18px!important;line-height:1.88!important;color:#283a37!important;word-break:keep-all;overflow-wrap:anywhere;letter-spacing:-.015em}
+.md-article *{box-sizing:border-box}.md-article p{margin:0 0 22px!important}.md-article h2{font-size:26px;line-height:1.45;letter-spacing:-.035em;color:#17334a;margin:56px 0 20px!important;font-weight:750;scroll-margin-top:24px}.md-article h3{font-size:21px;line-height:1.5;margin:28px 0 16px;color:#17334a}.md-article ul,.md-article ol{padding-left:24px;margin:18px 0 28px}.md-article li{padding-left:4px;margin:10px 0}.md-article a{color:#176556;text-underline-offset:4px}.md-article strong{font-weight:700;color:#173e35}
+.md-article figure{margin:32px 0 38px}.md-article figure img{display:block;width:100%;height:auto;border-radius:12px}.md-article figcaption{font-size:14px;line-height:1.7;color:#64716c;margin-top:12px;max-width:70ch}.md-article figcaption:empty{display:none}.md-article small{font-size:14px;line-height:1.75;color:#64716c}
+.md-article table{width:100%;border-collapse:separate;border-spacing:0;margin:24px 0 32px;font-size:16px;line-height:1.65;border:1px solid #d7e1dc;border-radius:10px;overflow:hidden}.md-article th,.md-article td{padding:15px 16px;text-align:left;vertical-align:top;border:0;border-bottom:1px solid #e4eae6}.md-article th{background:#edf4f0;color:#234c40;font-weight:700}.md-article tr:last-child td{border-bottom:0}
+.md-article .answer-card{background:#f0f6f2;border-left:4px solid #28725c;border-radius:0 12px 12px 0;padding:22px 26px;margin:28px 0}.md-article .answer-card .eyebrow{font-size:13px;font-weight:700;letter-spacing:.04em;color:#3b6c5b;margin-bottom:9px!important}.md-article .answer-card p:last-child{margin-bottom:0!important}.md-article .toc{padding:22px 26px;background:#faf9f5;border:1px solid #e4e5dd;border-radius:12px;margin:28px 0 40px}.md-article .toc strong{display:block;margin-bottom:12px}.md-article .toc a{display:block;padding:7px 0;font-size:16px;line-height:1.55;text-decoration:none}.md-article .toc a:hover{text-decoration:underline}.md-article .editorial-extra{margin:0}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool){font:inherit!important;margin:40px 0!important;padding:28px!important;background:#f5f8f5!important;border:1px solid #d8e2da!important;border-radius:18px!important;max-width:100%!important;min-width:0!important;color:#283a37!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) p{font-size:15px!important;line-height:1.78!important;margin:14px 0!important;color:#50615a!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) h2,.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) h3{font-size:21px!important;line-height:1.45!important;margin:0 0 18px!important;padding:0!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) form,.md-article #ecom-tool .fields{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:22px 20px!important;align-items:end!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) label{font-size:15px!important;line-height:1.55!important;font-weight:600!important;color:#334d42!important;margin:0!important;min-width:0}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) input[type=number]{width:100%!important;min-width:0!important;height:50px!important;font-size:18px!important;font-weight:500!important;line-height:1.2!important;padding:12px 14px!important;margin-top:8px!important;border-radius:9px!important;box-shadow:none!important;background:white!important;color:#17334a!important;font-variant-numeric:tabular-nums}
+.md-article #ecom-tool .input-wrap{margin-top:8px;border-radius:9px}.md-article #ecom-tool .input-wrap input{margin-top:0!important;border:0!important}.md-article #ecom-tool .unit{font-size:14px;padding-right:14px}.md-article #ecom-tool .layout{display:block!important}.md-article #ecom-tool .box{padding:24px!important;margin:20px 0 0!important;border-radius:12px!important;border:1px solid #dfe6df!important}.md-article #ecom-tool .head{padding:0!important}.md-article #ecom-tool .head .eyebrow{font-size:12px;margin-bottom:8px}.md-article #ecom-tool .tabs{display:flex!important;gap:8px!important;margin:22px 0!important;flex-wrap:wrap}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) button{font-size:15px!important;line-height:1.4!important;min-height:44px;padding:11px 17px!important;border-radius:9px!important;margin:20px 8px 0 0!important}.md-article #ecom-tool .tabs button{margin:0!important}.md-article #ecom-tool .actions{margin-top:0!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .results{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;margin-top:24px!important}.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .result{padding:18px 20px!important;background:white!important;border:1px solid #e0e7df!important;border-left:3px solid #3d7d66!important;border-radius:10px!important;min-width:0!important;font-size:14px;line-height:1.6}.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .result strong,.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .result b{display:block;font-size:25px!important;line-height:1.3!important;margin-top:9px!important;color:#17334a!important;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.md-article #ecom-tool .result span{font-size:14px!important;line-height:1.6!important}.md-article #ecom-tool .formula,.md-article #ecom-tool .note{padding:18px 0 0!important;border:0!important;border-top:1px solid #dce5dd!important;background:transparent!important}.md-article #ecom-tool .error:empty{display:none}.md-article #ecom-tool .error{color:#a6382c!important}
+.md-article [id^="mdtool-"] .check{display:flex!important;align-items:flex-start;gap:12px;padding:16px 18px!important;margin-bottom:10px!important;background:white!important;border:1px solid #e0e7df;border-radius:10px}.md-article [id^="mdtool-"] .check input{flex:0 0 20px;margin:2px 0 0!important;accent-color:#286950}.md-article textarea{font:inherit!important;padding:14px!important;line-height:1.65!important;min-height:112px!important;resize:vertical}
+@media(max-width:600px){.md-article{font-size:17px!important;line-height:1.85!important}.md-article h2{font-size:23px;margin-top:44px!important}.md-article p{margin-bottom:20px!important}.md-article .answer-card,.md-article .toc{padding:19px 18px}.md-article table{font-size:14px}.md-article th,.md-article td{padding:12px 9px}.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool){padding:18px!important;border-radius:14px!important}.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) form,.md-article #ecom-tool .fields,.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .results{grid-template-columns:1fr!important;gap:18px!important}.md-article #ecom-tool .box{padding:16px!important}.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) .result{padding:17px 16px!important}.md-article #ecom-tool .tabs{display:grid!important;grid-template-columns:1fr!important}.md-article figure{margin:26px 0 30px}}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) label.check{margin-bottom:12px!important}
+.md-article :is(#ecom-tool,[id^="mdtool-"],#md-shipping-tool) label.check+label:not(.check){display:block!important;margin-top:22px!important;margin-bottom:10px!important}
+</style>
