@@ -5,8 +5,8 @@
  panel.style.cssText='max-width:820px;margin:24px auto;padding:22px;box-sizing:border-box;background:#fff5dc;border-radius:12px;font:16px/1.8 "Malgun Gothic",sans-serif';
  const heading=document.createElement('h2');heading.textContent='파일로 보관하고 다시 사용하세요';heading.style.fontSize='21px';panel.append(heading);
  const link=(name,file)=>{const a=document.createElement('a');a.textContent=name;a.href='../../downloads/'+file;a.download=file;a.style.cssText='display:inline-block;margin:8px 14px 8px 0;color:#175e50';panel.append(a)};
- if(checklist){link('빈 워드 양식 (.docx)',`checklist-${id}.docx`);link('빈 인쇄 양식 (.pdf)',`checklist-${id}.pdf`)}else{link('계산식이 있는 엑셀 양식 (.xlsx)','ecommerce-calculators.xlsx')}
- const note=document.createElement('p');note.textContent=checklist?'다운로드 양식은 빈 양식입니다. 현재 체크와 메모를 보관하려면 아래 버튼을 누르세요.':`엑셀은 예시값이 들어 있는 20개 계산 시트와 시작 메뉴 모음입니다. ${id} 시트를 사용하세요. 웹에서 바꾼 값은 엑셀에 자동으로 옮겨지지 않습니다.`;panel.append(note);
+ if(checklist){link('빈 워드 양식 (.docx)',`checklist-${id}.docx`);link('빈 인쇄 양식 (.pdf)',`checklist-${id}.pdf`)}else{link('통합 엑셀 양식 (.xlsx)','ecommerce-calculators.xlsx')}
+ const note=document.createElement('p');note.textContent=checklist?'다운로드 양식은 빈 양식입니다. 현재 체크와 메모를 보관하려면 아래 버튼을 누르세요.':`모든 계산기 페이지에서 같은 통합 엑셀을 제공합니다. 글별 계산 17개와 추가 계산 3개, 시작 메뉴를 합쳐 총 21개 시트입니다. ${id} 시트를 사용하세요. 웹에서 바꾼 값은 엑셀에 자동으로 옮겨지지 않습니다.`;panel.append(note);
  const button=document.createElement('button');button.type='button';button.textContent='현재 입력과 결과 PDF로 저장';button.style.cssText='padding:13px 18px;background:#175e50;color:white;border:0;border-radius:8px;font:inherit;cursor:pointer';panel.append(button);
  const tip=document.createElement('p');tip.textContent='인쇄 화면에서 대상을 “PDF로 저장”으로 선택하세요. 기기에 따라 저장 메뉴 이름이 다를 수 있습니다.';panel.append(tip);document.body.append(panel);
  button.onclick=()=>{
@@ -30,5 +30,6 @@
   const print=add('button','인쇄 또는 PDF로 저장');print.onclick=()=>win.print();win.focus();setTimeout(()=>win.print(),350);
  };
 })();
+
 
 
